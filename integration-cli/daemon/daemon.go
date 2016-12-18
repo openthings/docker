@@ -195,6 +195,7 @@ func (d *Daemon) StartWithLogFile(out *os.File, providedArgs ...string) error {
 	if err != nil {
 		return errors.Wrapf(err, "[%s] could not find docker binary in $PATH", d.id)
 	}
+
 	args := append(d.GlobalFlags,
 		"--containerd", "/var/run/docker/libcontainerd/docker-containerd.sock",
 		"--graph", d.Root,

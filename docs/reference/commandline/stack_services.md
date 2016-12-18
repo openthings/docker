@@ -64,7 +64,8 @@ The currently supported filters are:
 
 ## Related information
 
+* [stack config](stack_config.md)
 * [stack deploy](stack_deploy.md)
-* [stack ls](stack_ls.md)
-* [stack ps](stack_ps.md)
 * [stack rm](stack_rm.md)
+* [stack ps](stack_ps.md)
+* [stack ls](stack_ls.md)

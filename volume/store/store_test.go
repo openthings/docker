@@ -2,8 +2,6 @@ package store
 
 import (
 	"errors"
-	"io/ioutil"
-	"os"
 	"strings"
 	"testing"
 
@@ -18,13 +16,7 @@ func TestCreate(t *testing.T) {
 
 	volumedrivers.Register(volumetestutils.NewFakeDriver("fake"), "fake")
 	defer volumedrivers.Unregister("fake")
-	dir, err := ioutil.TempDir("", "test-create")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer os.RemoveAll(dir)
-
-	s, err := New(dir)
+	s, err := New("")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -55,12 +47,7 @@ func TestRemove(t *testing.T) {
 	volumedrivers.Register(volumetestutils.NewFakeDriver("noop"), "noop")
 	defer volumedrivers.Unregister("fake")
 	defer volumedrivers.Unregister("noop")
-	dir, err := ioutil.TempDir("", "test-remove")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer os.RemoveAll(dir)
-	s, err := New(dir)
+	s, err := New("")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -93,13 +80,8 @@ func TestList(t *testing.T) {
 	volumedrivers.Register(volumetestutils.NewFakeDriver("fake2"), "fake2")
 	defer volumedrivers.Unregister("fake")
 	defer volumedrivers.Unregister("fake2")
-	dir, err := ioutil.TempDir("", "test-list")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer os.RemoveAll(dir)
 
-	s, err := New(dir)
+	s, err := New("")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -117,12 +99,9 @@ func TestList(t *testing.T) {
 	if len(ls) != 2 {
 		t.Fatalf("expected 2 volumes, got: %d", len(ls))
 	}
-	if err := s.Shutdown(); err != nil {
-		t.Fatal(err)
-	}
 
 	// and again with a new store
-	s, err = New(dir)
+	s, err = New("")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -140,11 +119,7 @@ func TestFilterByDriver(t *testing.T) {
 	volumedrivers.Register(volumetestutils.NewFakeDriver("noop"), "noop")
 	defer volumedrivers.Unregister("fake")
 	defer volumedrivers.Unregister("noop")
-	dir, err := ioutil.TempDir("", "test-filter-driver")
-	if err != nil {
-		t.Fatal(err)
-	}
-	s, err := New(dir)
+	s, err := New("")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -171,12 +146,8 @@ func TestFilterByDriver(t *testing.T) {
 func TestFilterByUsed(t *testing.T) {
 	volumedrivers.Register(volumetestutils.NewFakeDriver("fake"), "fake")
 	volumedrivers.Register(volumetestutils.NewFakeDriver("noop"), "noop")
-	dir, err := ioutil.TempDir("", "test-filter-used")
-	if err != nil {
-		t.Fatal(err)
-	}
 
-	s, err := New(dir)
+	s, err := New("")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -212,12 +183,8 @@ func TestFilterByUsed(t *testing.T) {
 
 func TestDerefMultipleOfSameRef(t *testing.T) {
 	volumedrivers.Register(volumetestutils.NewFakeDriver("fake"), "fake")
-	dir, err := ioutil.TempDir("", "test-same-deref")
-	if err != nil {
-		t.Fatal(err)
-	}
 
-	s, err := New(dir)
+	s, err := New("")
 	if err != nil {
 		t.Fatal(err)
 	}

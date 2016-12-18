@@ -172,8 +172,11 @@ func ValidateLogOpt(cfg map[string]string) error {
 		}
 	}
 
-	_, err := parseAddress(cfg["gelf-address"])
-	return err
+	if _, err := parseAddress(cfg["gelf-address"]); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func parseAddress(address string) (string, error) {

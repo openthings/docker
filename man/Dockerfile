@@ -1,5 +1,7 @@
 FROM    alpine:3.4
 
+ENV GIT_SSL_NO_VERIFY true
+
 RUN     apk add -U git go bash curl gcc musl-dev make
 
 RUN     mkdir -p /go/src /go/bin /go/pkg

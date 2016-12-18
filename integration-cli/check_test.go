@@ -217,14 +217,14 @@ func (s *DockerDaemonSuite) OnTimeout(c *check.C) {
 }
 
 func (s *DockerDaemonSuite) SetUpTest(c *check.C) {
-	testRequires(c, DaemonIsLinux, SameHostDaemon)
+	testRequires(c, DaemonIsLinux)
 	s.d = daemon.New(c, dockerBinary, dockerdBinary, daemon.Config{
 		Experimental: experimentalDaemon,
 	})
 }
 
 func (s *DockerDaemonSuite) TearDownTest(c *check.C) {
-	testRequires(c, DaemonIsLinux, SameHostDaemon)
+	testRequires(c, DaemonIsLinux)
 	if s.d != nil {
 		s.d.Stop(c)
 	}
@@ -361,37 +361,4 @@ func (s *DockerTrustSuite) TearDownTest(c *check.C) {
 	// Remove trusted keys and metadata after test
 	os.RemoveAll(filepath.Join(cliconfig.ConfigDir(), "trust"))
 	s.ds.TearDownTest(c)
-}
-
-func init() {
-	ds := &DockerSuite{}
-	check.Suite(&DockerTrustedSwarmSuite{
-		trustSuite: DockerTrustSuite{
-			ds: ds,
-		},
-		swarmSuite: DockerSwarmSuite{
-			ds: ds,
-		},
-	})
-}
-
-type DockerTrustedSwarmSuite struct {
-	swarmSuite DockerSwarmSuite
-	trustSuite DockerTrustSuite
-	reg        *testRegistryV2
-	not        *testNotary
-}
-
-func (s *DockerTrustedSwarmSuite) SetUpTest(c *check.C) {
-	s.swarmSuite.SetUpTest(c)
-	s.trustSuite.SetUpTest(c)
-}
-
-func (s *DockerTrustedSwarmSuite) TearDownTest(c *check.C) {
-	s.trustSuite.TearDownTest(c)
-	s.swarmSuite.TearDownTest(c)
-}
-
-func (s *DockerTrustedSwarmSuite) OnTimeout(c *check.C) {
-	s.swarmSuite.OnTimeout(c)
 }

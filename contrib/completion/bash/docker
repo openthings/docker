@@ -2756,7 +2756,7 @@ _docker_service_update() {
 			--host
 			--mode
 			--name
-			--publish
+			--port
 			--secret
 		"
 
@@ -2803,8 +2803,8 @@ _docker_service_update() {
 			--host-add
 			--host-rm
 			--image
-			--publish-add
-			--publish-rm
+			--port-add
+			--port-rm
 			--secret-add
 			--secret-rm
 		"
@@ -3514,10 +3514,8 @@ _docker_stack() {
 _docker_stack_deploy() {
 	case "$prev" in
 		--bundle-file)
-			if __docker_is_experimental ; then
-				_filedir dab
-				return
-			fi
+			_filedir dab
+			return
 			;;
 		--compose-file|-c)
 			_filedir yml
@@ -3527,9 +3525,7 @@ _docker_stack_deploy() {
 
 	case "$cur" in
 		-*)
-			local options="--compose-file -c --help --with-registry-auth"
-			__docker_is_experimental && options+=" --bundle-file"
-			COMPREPLY=( $( compgen -W "$options" -- "$cur" ) )
+			COMPREPLY=( $( compgen -W "--bundle-file --compose-file -c --help --with-registry-auth" -- "$cur" ) )
 			;;
 	esac
 }

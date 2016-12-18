@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	registrytypes "github.com/docker/docker/api/types/registry"
-	"github.com/docker/docker/cli/trust"
 	"github.com/docker/docker/registry"
 )
 
@@ -20,7 +19,7 @@ func TestENVTrustServer(t *testing.T) {
 	if err := os.Setenv("DOCKER_CONTENT_TRUST_SERVER", "https://notary-test.com:5000"); err != nil {
 		t.Fatal("Failed to set ENV variable")
 	}
-	output, err := trust.Server(indexInfo)
+	output, err := trustServer(indexInfo)
 	expectedStr := "https://notary-test.com:5000"
 	if err != nil || output != expectedStr {
 		t.Fatalf("Expected server to be %s, got %s", expectedStr, output)
@@ -33,7 +32,7 @@ func TestHTTPENVTrustServer(t *testing.T) {
 	if err := os.Setenv("DOCKER_CONTENT_TRUST_SERVER", "http://notary-test.com:5000"); err != nil {
 		t.Fatal("Failed to set ENV variable")
 	}
-	_, err := trust.Server(indexInfo)
+	_, err := trustServer(indexInfo)
 	if err == nil {
 		t.Fatal("Expected error with invalid scheme")
 	}
@@ -41,7 +40,7 @@ func TestHTTPENVTrustServer(t *testing.T) {
 
 func TestOfficialTrustServer(t *testing.T) {
 	indexInfo := &registrytypes.IndexInfo{Name: "testserver", Official: true}
-	output, err := trust.Server(indexInfo)
+	output, err := trustServer(indexInfo)
 	if err != nil || output != registry.NotaryServer {
 		t.Fatalf("Expected server to be %s, got %s", registry.NotaryServer, output)
 	}
@@ -49,7 +48,7 @@ func TestOfficialTrustServer(t *testing.T) {
 
 func TestNonOfficialTrustServer(t *testing.T) {
 	indexInfo := &registrytypes.IndexInfo{Name: "testserver", Official: false}
-	output, err := trust.Server(indexInfo)
+	output, err := trustServer(indexInfo)
 	expectedStr := "https://" + indexInfo.Name
 	if err != nil || output != expectedStr {
 		t.Fatalf("Expected server to be %s, got %s", expectedStr, output)

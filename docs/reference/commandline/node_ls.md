@@ -122,9 +122,7 @@ e216jshn25ckzbvmwlnh5jr3g *  swarm-manager1  Ready   Active        Leader
 
 ## Related information
 
-* [node demote](node_demote.md)
 * [node inspect](node_inspect.md)
-* [node promote](node_promote.md)
+* [node update](node_update.md)
 * [node ps](node_ps.md)
 * [node rm](node_rm.md)
-* [node update](node_update.md)

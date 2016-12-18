@@ -3,9 +3,7 @@
 package main
 
 import (
-	"bytes"
 	"io/ioutil"
-	"os/exec"
 	"strings"
 
 	"github.com/docker/docker/pkg/sysinfo"
@@ -123,17 +121,6 @@ var (
 			return false
 		},
 		"Test cannot be run without a kernel (4.3+) supporting ambient capabilities",
-	}
-	overlaySupported = testRequirement{
-		func() bool {
-			cmd := exec.Command(dockerBinary, "run", "--rm", "busybox", "/bin/sh", "-c", "cat /proc/filesystems")
-			out, err := cmd.CombinedOutput()
-			if err != nil {
-				return false
-			}
-			return bytes.Contains(out, []byte("overlay\n"))
-		},
-		"Test cannot be run wihtout suppport for ovelayfs",
 	}
 )
 

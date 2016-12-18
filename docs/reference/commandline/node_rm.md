@@ -65,9 +65,8 @@ before you can remove it from the swarm.
 
 ## Related information
 
-* [node demote](node_demote.md)
 * [node inspect](node_inspect.md)
-* [node ls](node_ls.md)
-* [node promote](node_promote.md)
-* [node ps](node_ps.md)
 * [node update](node_update.md)
+* [node demote](node_demote.md)
+* [node ps](node_ps.md)
+* [node ls](node_ls.md)

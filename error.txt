@@ -1,0 +1,14 @@
+Make deb
+
+---> Making bundle: dynbinary (in bundles/1.14.0-dev/dynbinary)
+Building: bundles/1.14.0-dev/dynbinary-client/docker-1.14.0-dev
+Created binary: bundles/1.14.0-dev/dynbinary-client/docker-1.14.0-dev
+Building: bundles/1.14.0-dev/dynbinary-daemon/dockerd-1.14.0-dev
+# github.com/docker/docker/volume/store
+volume/store/restore.go:44: undefined: lookupVolume
+volume/store/store.go:23: volumeBucketName redeclared in this block
+	previous declaration at volume/store/db.go:10
+volume/store/store.go:26: volumeMetadata redeclared in this block
+	previous declaration at volume/store/db.go:17
+Makefile:104: recipe for target 'deb' failed
+

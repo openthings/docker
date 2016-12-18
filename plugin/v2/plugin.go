@@ -11,7 +11,6 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/oci"
-	"github.com/docker/docker/pkg/plugingetter"
 	"github.com/docker/docker/pkg/plugins"
 	"github.com/docker/docker/pkg/system"
 	specs "github.com/opencontainers/runtime-spec/specs-go"
@@ -134,9 +133,9 @@ func (p *Plugin) InitPlugin() error {
 
 	p.PluginObj.Settings.Mounts = make([]types.PluginMount, len(p.PluginObj.Config.Mounts))
 	copy(p.PluginObj.Settings.Mounts, p.PluginObj.Config.Mounts)
-	p.PluginObj.Settings.Devices = make([]types.PluginDevice, len(p.PluginObj.Config.Linux.Devices))
-	copy(p.PluginObj.Settings.Devices, p.PluginObj.Config.Linux.Devices)
 	p.PluginObj.Settings.Env = make([]string, 0, len(p.PluginObj.Config.Env))
+	p.PluginObj.Settings.Devices = make([]types.PluginDevice, 0, len(p.PluginObj.Config.Linux.Devices))
+	copy(p.PluginObj.Settings.Devices, p.PluginObj.Config.Linux.Devices)
 	for _, env := range p.PluginObj.Config.Env {
 		if env.Value != nil {
 			p.PluginObj.Settings.Env = append(p.PluginObj.Settings.Env, fmt.Sprintf("%s=%s", env.Name, *env.Value))
@@ -293,19 +292,6 @@ func (p *Plugin) AddRefCount(count int) {
 	defer p.mu.Unlock()
 
 	p.refCount += count
-}
-
-// Acquire increments the plugin's reference count
-// This should be followed up by `Release()` when the plugin is no longer in use.
-func (p *Plugin) Acquire() {
-	p.AddRefCount(plugingetter.ACQUIRE)
-}
-
-// Release decrements the plugin's reference count
-// This should only be called when the plugin is no longer in use, e.g. with
-// via `Acquire()` or getter.Get("name", "type", plugingetter.ACQUIRE)
-func (p *Plugin) Release() {
-	p.AddRefCount(plugingetter.RELEASE)
 }
 
 // InitSpec creates an OCI spec from the plugin's config.

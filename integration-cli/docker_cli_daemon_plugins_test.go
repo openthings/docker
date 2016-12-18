@@ -16,7 +16,7 @@ import (
 
 // TestDaemonRestartWithPluginEnabled tests state restore for an enabled plugin
 func (s *DockerDaemonSuite) TestDaemonRestartWithPluginEnabled(c *check.C) {
-	testRequires(c, IsAmd64, Network)
+	testRequires(c, Network)
 
 	s.d.Start(c)
 
@@ -45,7 +45,7 @@ func (s *DockerDaemonSuite) TestDaemonRestartWithPluginEnabled(c *check.C) {
 
 // TestDaemonRestartWithPluginDisabled tests state restore for a disabled plugin
 func (s *DockerDaemonSuite) TestDaemonRestartWithPluginDisabled(c *check.C) {
-	testRequires(c, IsAmd64, Network)
+	testRequires(c, Network)
 
 	s.d.Start(c)
 
@@ -72,7 +72,7 @@ func (s *DockerDaemonSuite) TestDaemonRestartWithPluginDisabled(c *check.C) {
 // TestDaemonKillLiveRestoreWithPlugins SIGKILLs daemon started with --live-restore.
 // Plugins should continue to run.
 func (s *DockerDaemonSuite) TestDaemonKillLiveRestoreWithPlugins(c *check.C) {
-	testRequires(c, IsAmd64, Network)
+	testRequires(c, Network, IsAmd64)
 
 	s.d.Start(c, "--live-restore")
 	if out, err := s.d.Cmd("plugin", "install", "--grant-all-permissions", pName); err != nil {
@@ -101,7 +101,7 @@ func (s *DockerDaemonSuite) TestDaemonKillLiveRestoreWithPlugins(c *check.C) {
 // TestDaemonShutdownLiveRestoreWithPlugins SIGTERMs daemon started with --live-restore.
 // Plugins should continue to run.
 func (s *DockerDaemonSuite) TestDaemonShutdownLiveRestoreWithPlugins(c *check.C) {
-	testRequires(c, IsAmd64, Network)
+	testRequires(c, Network, IsAmd64)
 
 	s.d.Start(c, "--live-restore")
 	if out, err := s.d.Cmd("plugin", "install", "--grant-all-permissions", pName); err != nil {
@@ -129,7 +129,7 @@ func (s *DockerDaemonSuite) TestDaemonShutdownLiveRestoreWithPlugins(c *check.C)
 
 // TestDaemonShutdownWithPlugins shuts down running plugins.
 func (s *DockerDaemonSuite) TestDaemonShutdownWithPlugins(c *check.C) {
-	testRequires(c, IsAmd64, Network, SameHostDaemon)
+	testRequires(c, Network)
 
 	s.d.Start(c)
 	if out, err := s.d.Cmd("plugin", "install", "--grant-all-permissions", pName); err != nil {
@@ -160,16 +160,11 @@ func (s *DockerDaemonSuite) TestDaemonShutdownWithPlugins(c *check.C) {
 	if out, ec, err := runCommandWithOutput(cmd); ec != 1 {
 		c.Fatalf("Expected exit code '1', got %d err: %v output: %s ", ec, err, out)
 	}
-
-	s.d.Start(c, "--live-restore")
-	cmd = exec.Command("pgrep", "-f", pluginProcessName)
-	out, _, err := runCommandWithOutput(cmd)
-	c.Assert(err, checker.IsNil, check.Commentf(out))
 }
 
 // TestVolumePlugin tests volume creation using a plugin.
 func (s *DockerDaemonSuite) TestVolumePlugin(c *check.C) {
-	testRequires(c, IsAmd64, Network)
+	testRequires(c, Network, IsAmd64)
 
 	volName := "plugin-volume"
 	destDir := "/tmp/data/"
@@ -233,45 +228,6 @@ func (s *DockerDaemonSuite) TestVolumePlugin(c *check.C) {
 	exists, err := existsMountpointWithPrefix(mountpointPrefix)
 	c.Assert(err, checker.IsNil)
 	c.Assert(exists, checker.Equals, true)
-}
-
-func (s *DockerDaemonSuite) TestGraphdriverPlugin(c *check.C) {
-	testRequires(c, Network, IsAmd64, DaemonIsLinux, overlaySupported)
-
-	s.d.Start(c)
-
-	// install the plugin
-	plugin := "cpuguy83/docker-overlay2-graphdriver-plugin"
-	out, err := s.d.Cmd("plugin", "install", "--grant-all-permissions", plugin)
-	c.Assert(err, checker.IsNil, check.Commentf(out))
-
-	// restart the daemon with the plugin set as the storage driver
-	s.d.Restart(c, "-s", plugin)
-
-	// run a container
-	out, err = s.d.Cmd("run", "--rm", "busybox", "true") // this will pull busybox using the plugin
-	c.Assert(err, checker.IsNil, check.Commentf(out))
-}
-
-func (s *DockerDaemonSuite) TestPluginVolumeRemoveOnRestart(c *check.C) {
-	testRequires(c, DaemonIsLinux, Network, IsAmd64)
-
-	s.d.Start(c, "--live-restore=true")
-
-	out, err := s.d.Cmd("plugin", "install", "--grant-all-permissions", pName)
-	c.Assert(err, checker.IsNil, check.Commentf(out))
-	c.Assert(strings.TrimSpace(out), checker.Contains, pName)
-
-	out, err = s.d.Cmd("volume", "create", "--driver", pName, "test")
-	c.Assert(err, checker.IsNil, check.Commentf(out))
-
-	s.d.Restart(c, "--live-restore=true")
-
-	out, err = s.d.Cmd("plugin", "disable", pName)
-	c.Assert(err, checker.IsNil, check.Commentf(out))
-	out, err = s.d.Cmd("plugin", "rm", pName)
-	c.Assert(err, checker.NotNil, check.Commentf(out))
-	c.Assert(out, checker.Contains, "in use")
 }
 
 func existsMountpointWithPrefix(mountpointPrefix string) (bool, error) {

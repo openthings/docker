@@ -129,9 +129,7 @@ Example output:
 
 ## Related information
 
-* [node demote](node_demote.md)
-* [node ls](node_ls.md)
-* [node promote](node_promote.md)
-* [node ps](node_ps.md)
-* [node rm](node_rm.md)
 * [node update](node_update.md)
+* [node ps](node_ps.md)
+* [node ls](node_ls.md)
+* [node rm](node_rm.md)

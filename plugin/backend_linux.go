@@ -5,6 +5,7 @@ package plugin
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -22,7 +23,6 @@ import (
 	"github.com/docker/docker/plugin/distribution"
 	"github.com/docker/docker/plugin/v2"
 	"github.com/docker/docker/reference"
-	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 )
 
@@ -125,7 +125,7 @@ func computePrivileges(pd distribution.PullData) (types.PluginPrivileges, error)
 	}
 
 	var privileges types.PluginPrivileges
-	if c.Network.Type != "null" && c.Network.Type != "bridge" && c.Network.Type != "" {
+	if c.Network.Type != "null" && c.Network.Type != "bridge" {
 		privileges = append(privileges, types.PluginPrivilege{
 			Name:        "network",
 			Description: "permissions to access a network",
@@ -268,7 +268,7 @@ func (pm *Manager) Push(name string, metaHeader http.Header, authConfig *types.A
 }
 
 // Remove deletes plugin's root directory.
-func (pm *Manager) Remove(name string, config *types.PluginRmConfig) (err error) {
+func (pm *Manager) Remove(name string, config *types.PluginRmConfig) error {
 	p, err := pm.pluginStore.GetByName(name)
 	pm.mu.RLock()
 	c := pm.cMap[p]
@@ -294,18 +294,12 @@ func (pm *Manager) Remove(name string, config *types.PluginRmConfig) (err error)
 	}
 
 	id := p.GetID()
+	pm.pluginStore.Remove(p)
 	pluginDir := filepath.Join(pm.libRoot, id)
-
-	defer func() {
-		if err == nil || config.ForceRemove {
-			pm.pluginStore.Remove(p)
-			pm.pluginEventLogger(id, name, "remove")
-		}
-	}()
-
-	if err = os.RemoveAll(pluginDir); err != nil {
-		return errors.Wrap(err, "failed to remove plugin directory")
+	if err := os.RemoveAll(pluginDir); err != nil {
+		logrus.Warnf("unable to remove %q from plugin remove: %v", pluginDir, err)
 	}
+	pm.pluginEventLogger(id, name, "remove")
 	return nil
 }
 

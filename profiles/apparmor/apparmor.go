@@ -54,7 +54,10 @@ func (p *profileData) generateDefault(out io.Writer) error {
 	}
 	p.Version = ver
 
-	return compiled.Execute(out, p)
+	if err := compiled.Execute(out, p); err != nil {
+		return err
+	}
+	return nil
 }
 
 // macrosExists checks if the passed macro exists.
@@ -84,7 +87,11 @@ func InstallDefault(name string) error {
 		return err
 	}
 
-	return aaparser.LoadProfile(profilePath)
+	if err := aaparser.LoadProfile(profilePath); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // IsLoaded checks if a profile with the given name has been loaded into the

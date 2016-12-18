@@ -2,7 +2,7 @@
 % Docker Community
 % JUNE 2014
 # NAME
-docker-unpause - Unpause all processes within one or more containers
+docker-unpause - Unpause all processes within a container
 
 # SYNOPSIS
 **docker unpause**
@@ -10,7 +10,7 @@ CONTAINER [CONTAINER...]
 
 # DESCRIPTION
 
-The `docker unpause` command un-suspends all processes in the specified containers.
+The `docker unpause` command un-suspends all processes in a container.
 On Linux, it does this using the cgroups freezer.
 
 See the [cgroups freezer documentation]
@@ -18,11 +18,10 @@ See the [cgroups freezer documentation]
 further details.
 
 # OPTIONS
-**--help**
-  Print usage statement
+There are no available options.
 
 # See also
-**docker-pause(1)** to pause all processes within one or more containers.
+**docker-pause(1)** to pause all processes within a container.
 
 # HISTORY
 June 2014, updated by Sven Dowideit <SvenDowideit@home.org.au>

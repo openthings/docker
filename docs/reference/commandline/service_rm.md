@@ -48,7 +48,6 @@ ID  NAME  MODE  REPLICAS  IMAGE
 
 * [service create](service_create.md)
 * [service inspect](service_inspect.md)
-* [service logs](service_logs.md)
 * [service ls](service_ls.md)
 * [service scale](service_scale.md)
 * [service ps](service_ps.md)

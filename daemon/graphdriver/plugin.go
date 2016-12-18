@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 
 	"github.com/docker/docker/pkg/plugingetter"
-	"github.com/docker/docker/plugin/v2"
 )
 
 type pluginClient interface {
@@ -23,17 +22,10 @@ func lookupPlugin(name, home string, opts []string, pg plugingetter.PluginGetter
 	if err != nil {
 		return nil, fmt.Errorf("Error looking up graphdriver plugin %s: %v", name, err)
 	}
-	return newPluginDriver(name, home, opts, pl)
+	return newPluginDriver(name, home, opts, pl.Client())
 }
 
-func newPluginDriver(name, home string, opts []string, pl plugingetter.CompatPlugin) (Driver, error) {
-	if !pl.IsV1() {
-		if p, ok := pl.(*v2.Plugin); ok {
-			if p.PropagatedMount != "" {
-				home = p.PluginObj.Config.PropagatedMount
-			}
-		}
-	}
-	proxy := &graphDriverProxy{name, pl}
+func newPluginDriver(name, home string, opts []string, c pluginClient) (Driver, error) {
+	proxy := &graphDriverProxy{name, c}
 	return proxy, proxy.Init(filepath.Join(home, name), opts)
 }

@@ -155,5 +155,8 @@ func callEventWriteString(message string) error {
 
 func callEventUnregister() bool {
 	ret, _, _ := procEventUnregister.Call(uintptr(providerHandle))
-	return ret == win32CallSuccess
+	if ret != win32CallSuccess {
+		return false
+	}
+	return true
 }

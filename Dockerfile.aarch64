@@ -15,7 +15,8 @@
 # the case. Therefore, you don't have to disable it anymore.
 #
 
-FROM aarch64/ubuntu:wily
+FROM aarch64/ubuntu
+#FROM docker-builder 
 
 # Packaged dependencies
 RUN apt-get update && apt-get install -y \
@@ -31,6 +32,7 @@ RUN apt-get update && apt-get install -y \
 	dpkg-sig \
 	g++ \
 	gcc \
+	golang \
 	git \
 	iptables \
 	jq \
@@ -54,17 +56,20 @@ RUN apt-get update && apt-get install -y \
 	vim-common \
 	--no-install-recommends
 
+ENV http_proxy 192.168.1.88:9999
+ENV GIT_SSL_NO_VERIFY true
+
 # Get lvm2 source for compiling statically
 ENV LVM2_VERSION 2.02.103
 RUN mkdir -p /usr/local/lvm2 \
-	&& curl -fsSL "https://mirrors.kernel.org/sourceware/lvm2/LVM2.${LVM2_VERSION}.tgz" \
+	&& curl -x ${http_proxy} -fsSL "https://mirrors.kernel.org/sourceware/lvm2/LVM2.${LVM2_VERSION}.tgz" \
 		| tar -xzC /usr/local/lvm2 --strip-components=1
 # See https://git.fedorahosted.org/cgit/lvm2.git/refs/tags for release tags
 
 # Fix platform enablement in lvm2 to support aarch64 properly
 RUN set -e \
 	&& for f in config.guess config.sub; do \
-		curl -fsSL -o "/usr/local/lvm2/autoconf/$f" "http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=$f;hb=HEAD"; \
+		curl -x ${http_proxy} -fsSL -o "/usr/local/lvm2/autoconf/$f" "http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=$f;hb=HEAD"; \
 	done
 # "arch.c:78:2: error: #error the arch code needs to know about your machine type"
 
@@ -81,7 +86,7 @@ RUN cd /usr/local/lvm2 \
 ENV SECCOMP_VERSION 2.3.1
 RUN set -x \
 	&& export SECCOMP_PATH="$(mktemp -d)" \
-	&& curl -fsSL "https://github.com/seccomp/libseccomp/releases/download/v${SECCOMP_VERSION}/libseccomp-${SECCOMP_VERSION}.tar.gz" \
+	&& curl -x ${http_proxy} -fsSL "https://github.com/seccomp/libseccomp/releases/download/v${SECCOMP_VERSION}/libseccomp-${SECCOMP_VERSION}.tar.gz" \
 		| tar -xzC "$SECCOMP_PATH" --strip-components=1 \
 	&& ( \
 		cd "$SECCOMP_PATH" \
@@ -98,7 +103,8 @@ RUN set -x \
 # We don't use the official ARMv6 released binaries as a GOROOT_BOOTSTRAP, because
 # not all ARM64 platforms support 32-bit mode. 32-bit mode is optional for ARMv8.
 ENV GO_VERSION 1.7.4
-RUN mkdir /usr/src/go && curl -fsSL https://golang.org/dl/go${GO_VERSION}.src.tar.gz | tar -v -C /usr/src/go -xz --strip-components=1 \
+#ENV GOROOT /usr/src/go
+RUN mkdir /usr/src/go && curl -x ${http_proxy} -fSL https://golang.org/dl/go${GO_VERSION}.src.tar.gz | tar -v -C /usr/src/go -xz --strip-components=1 \
 	&& cd /usr/src/go/src \
 	&& GOOS=linux GOARCH=arm64 GOROOT_BOOTSTRAP="$(go env GOROOT)" ./make.bash
 
@@ -134,6 +140,8 @@ ENV DOCKER_PY_COMMIT e2655f658408f9ad1f62abdef3eb6ed43c0cf324
 RUN git clone https://github.com/docker/docker-py.git /docker-py \
 	&& cd /docker-py \
 	&& git checkout -q $DOCKER_PY_COMMIT \
+	&& pip install setuptools \
+	&& pip install --upgrade pip \
 	&& pip install -r test-requirements.txt
 
 # Set user.email so crosbymichael's in-container merge commits go smoothly
