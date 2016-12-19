@@ -13,6 +13,16 @@ DOCKERFILE := $(shell bash -c 'source hack/make/.detect-daemon-osarch && echo $$
 # env vars passed through directly to Docker's build scripts
 # to allow things like `make KEEPBUNDLE=1 binary` easily
 # `project/PACKAGERS.md` have some limited documentation of some of these
+
+#=======================================
+# Proxy setting.
+
+HTTP_PROXY=192.168.1.88:9999
+HTTPS_PROXY=192.168.1.88:9999
+http_proxy=192.168.1.88:9999
+https_proxy=192.168.1.88:9999
+#=======================================
+
 DOCKER_ENVS := \
 	-e BUILD_APT_MIRROR \
 	-e BUILDFLAGS \
@@ -35,8 +45,8 @@ DOCKER_ENVS := \
 	-e HTTP_PROXY \
 	-e HTTPS_PROXY \
 	-e NO_PROXY \
-	-e http_proxy \
-	-e https_proxy \
+	-e http_proxy=192.168.1.88:9999 \
+	-e https_proxy=192.168.1.88:9999 \
 	-e no_proxy
 # note: we _cannot_ add "-e DOCKER_BUILDTAGS" here because even if it's unset in the shell, that would shadow the "ENV DOCKER_BUILDTAGS" set in our Dockerfile, which is very important for our official builds
 
